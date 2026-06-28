@@ -1,0 +1,19 @@
+# ============================================================
+# Grafana Dashboard 自动加载配置
+#  - 从 /var/lib/grafana/dashboards/ 目录自动加载所有 *.json 文件
+#  - 可通过 add-dashboard.sh 脚本添加 dashboard
+# ============================================================
+
+apiVersion: 1
+
+providers:
+  - name: 'default'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: true

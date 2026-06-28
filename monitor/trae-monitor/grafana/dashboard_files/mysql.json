@@ -1,0 +1,100 @@
+{
+  "annotations": { "list": [] },
+  "description": "MySQL / MariaDB 数据库监控面板",
+  "editable": true,
+  "schemaVersion": 39,
+  "tags": [ "mysql", "mariadb", "database" ],
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "MySQL 监控",
+  "uid": "mysql-dashboard",
+  "version": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": "Prometheus",
+        "refresh": 1,
+        "query": "label_values(mysql_up, instance)",
+        "definition": "label_values(mysql_up, instance)",
+        "current": { "text": "All", "value": "$__all" },
+        "includeAll": true,
+        "multi": true,
+        "label": "Instance"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "概览",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "stat",
+      "title": "服务状态",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "mysql_up{instance=~\"$instance\"}", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "当前连接数",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "mysql_global_status_threads_connected{instance=~\"$instance\"}", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "最大连接数",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "mysql_global_variables_max_connections{instance=~\"$instance\"}", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "运行中线程",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "mysql_global_status_threads_running{instance=~\"$instance\"}", "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "性能指标",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }
+    },
+    {
+      "type": "timeseries",
+      "title": "QPS",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "rate(mysql_global_status_questions{instance=~\"$instance\"}[5m])", "legendFormat": "{{instance}}", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "慢查询 / 秒",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "rate(mysql_global_status_slow_queries{instance=~\"$instance\"}[5m])", "legendFormat": "{{instance}}", "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "InnoDB 指标",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 }
+    },
+    {
+      "type": "timeseries",
+      "title": "缓冲池命中率 (%)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "(1 - (rate(mysql_global_status_innodb_buffer_pool_reads{instance=~\"$instance\"}[5m]) / rate(mysql_global_status_innodb_buffer_pool_read_requests{instance=~\"$instance\"}[5m]))) * 100", "legendFormat": "{{instance}}", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "连接数趋势",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "mysql_global_status_threads_connected{instance=~\"$instance\"}", "legendFormat": "{{instance}}", "refId": "A" }]
+    }
+  ]
+}

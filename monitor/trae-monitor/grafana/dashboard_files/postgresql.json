@@ -1,0 +1,112 @@
+{
+  "annotations": { "list": [] },
+  "description": "PostgreSQL 数据库监控面板",
+  "editable": true,
+  "schemaVersion": 39,
+  "tags": [ "postgresql", "postgres", "database" ],
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "PostgreSQL 监控",
+  "uid": "postgresql-dashboard",
+  "version": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": "Prometheus",
+        "refresh": 1,
+        "query": "label_values(pg_up, instance)",
+        "definition": "label_values(pg_up, instance)",
+        "current": { "text": "All", "value": "$__all" },
+        "includeAll": true,
+        "multi": true,
+        "label": "Instance"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "概览",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "stat",
+      "title": "服务状态",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "pg_up{instance=~\"$instance\"}", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "当前连接数",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "sum(pg_stat_database_numbackends{instance=~\"$instance\"})", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "最大连接数",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "pg_settings_max_connections{instance=~\"$instance\"}", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "连接池使用率 (%)",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "(sum(pg_stat_database_numbackends{instance=~\"$instance\"}) / pg_settings_max_connections{instance=~\"$instance\"}) * 100", "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "连接与查询",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }
+    },
+    {
+      "type": "timeseries",
+      "title": "活动连接数",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "pg_stat_database_numbackends{instance=~\"$instance\"}", "legendFormat": "{{instance}} {{datname}}", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "QPS (每秒查询数)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "rate(pg_stat_database_xact_commit{instance=~\"$instance\"}[5m]) + rate(pg_stat_database_xact_rollback{instance=~\"$instance\"}[5m])", "legendFormat": "{{instance}} {{datname}}", "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "性能与缓存",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 }
+    },
+    {
+      "type": "timeseries",
+      "title": "缓存命中率 (%)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "sum(rate(pg_stat_database_blks_hit{instance=~\"$instance\"}[5m])) / (sum(rate(pg_stat_database_blks_hit{instance=~\"$instance\"}[5m])) + sum(rate(pg_stat_database_blks_read{instance=~\"$instance\"}[5m]))) * 100", "legendFormat": "{{instance}} {{datname}}", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "死锁数量",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "rate(pg_stat_database_deadlocks{instance=~\"$instance\"}[5m])", "legendFormat": "{{instance}} {{datname}}", "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "复制与延迟",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 }
+    },
+    {
+      "type": "timeseries",
+      "title": "复制延迟 (秒)",
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 24 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "pg_replication_lag{instance=~\"$instance\"}", "legendFormat": "{{instance}}", "refId": "A" }]
+    }
+  ]
+}

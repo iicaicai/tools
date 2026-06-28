@@ -1,0 +1,66 @@
+# ============================================================
+# Prometheus 主配置文件
+#  - scrape_interval: 全局抓取间隔
+#  - scrape_configs: 静态抓取配置（建议通过 targets.d 动态管理）
+#  - rule_files: 告警/记录规则
+# ============================================================
+
+global:
+  scrape_interval: 15s                    # 全局默认抓取间隔
+  evaluation_interval: 15s                # 规则评估间隔
+  scrape_timeout: 10s                     # 抓取超时
+  external_labels:
+    cluster: 'monitor'
+    environment: 'production'
+
+# ------------------------------------------------------------
+# 告警规则文件目录（所有 *.yml 文件都会被加载）
+# ------------------------------------------------------------
+rule_files:
+  - "rules/*.yml"
+
+# ------------------------------------------------------------
+# Alertmanager 配置
+# ------------------------------------------------------------
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# ------------------------------------------------------------
+# 抓取配置 (scrape_configs)
+# 注意：
+#   - Prometheus 自身 + Alertmanager 在这里静态声明
+#   - 其他监控目标（node-exporter / postgres_exporter /
+#     mysqld_exporter / influxdb 等）请放在 targets.d/ 目录
+#     通过 file_sd_configs 动态加载，便于脚本维护。
+# ------------------------------------------------------------
+scrape_configs:
+  # ---- Prometheus 自身 ----
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # ---- Alertmanager ----
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+        labels:
+          service: 'alertmanager'
+
+  # ============================================================
+  # 动态目标管理：从 targets.d 目录下所有 *.json / *.yml 文件加载
+  # 当你通过脚本 add-target.sh / remove-target.sh 修改目标后，
+  # Prometheus 会自动在 30s 内发现变更，无需重启容器。
+  # 你也可以通过 `curl -X POST http://localhost:9090/-/reload` 立即重载。
+  # ============================================================
+  - job_name: 'dynamic-targets'
+    file_sd_configs:
+      - files:
+          - '/etc/prometheus/targets.d/*.yml'
+          - '/etc/prometheus/targets.d/*.yaml'
+          - '/etc/prometheus/targets.d/*.json'
+        refresh_interval: 30s

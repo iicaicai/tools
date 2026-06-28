@@ -1,0 +1,15 @@
+# ============================================================
+# 示例：本地 node-exporter 监控目标
+# 说明：此文件由 add-target.sh / remove-target.sh 脚本维护
+#      你也可以手动编辑，遵循以下格式即可。
+#
+# 字段说明:
+#   - targets : exporter 暴露指标的 IP:PORT 列表
+#   - labels  : 自定义标签，job 表示"任务/类型"，在 Grafana Dashboard 中用于筛选
+# ============================================================
+- targets:
+    - node-exporter:9100
+  labels:
+    job: node-exporter
+    instance: local-host
+    location: docker-host

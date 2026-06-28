@@ -1,0 +1,15 @@
+# ============================================================
+# 示例：Redis 容器监控 (使用 redis_exporter)
+#
+# 部署步骤：
+#   docker run -d --name redis_exporter \
+#     --network monitor-net \
+#     -e REDIS_ADDR=redis:6379 \
+#     -e REDIS_PASSWORD=yourpassword \
+#     -p 9121:9121 oliver006/redis_exporter:v1.58.0
+# ============================================================
+- targets:
+    - redis_exporter:9121
+  labels:
+    job: redis
+    instance: redis-cache

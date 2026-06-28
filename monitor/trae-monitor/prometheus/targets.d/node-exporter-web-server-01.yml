@@ -1,0 +1,8 @@
+# 由 scripts/add-target.sh 生成
+# 创建时间: 2026-06-13 11:41:50
+- targets:
+    - 192.168.148.1:9100
+  labels:
+    job: node-exporter
+    instance: web-server-01
+    dc: shanghai

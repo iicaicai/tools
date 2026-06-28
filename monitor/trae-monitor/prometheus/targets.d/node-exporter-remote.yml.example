@@ -1,0 +1,17 @@
+# ============================================================
+# 示例：远程物理机 node-exporter 监控目标
+# 部署步骤:
+#   1) 在目标物理机上安装并启动 node-exporter
+#      wget https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
+#      tar xzf node_exporter-1.8.2.linux-amd64.tar.gz
+#      cd node_exporter-1.8.2.linux-amd64
+#      nohup ./node_exporter --web.listen-address=:9100 &
+#   2) 确保 9100 端口在防火墙放行 (ufw allow 9100 / firewall-cmd --add-port=9100/tcp)
+#   3) 复制此文件，改名并填入目标 IP 即可，或者使用 add-target.sh 添加
+# ============================================================
+- targets:
+    - 192.168.1.100:9100
+  labels:
+    job: node-exporter
+    instance: remote-server-1
+    location: beijing

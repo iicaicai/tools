@@ -1,0 +1,71 @@
+{
+  "annotations": { "list": [] },
+  "description": "Prometheus 与告警系统总览面板",
+  "editable": true,
+  "schemaVersion": 39,
+  "tags": [ "prometheus", "overview", "alerts" ],
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Prometheus 总览",
+  "uid": "prometheus-overview",
+  "version": 1,
+  "templating": { "list": [] },
+  "panels": [
+    {
+      "type": "row",
+      "title": "系统概览",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "stat",
+      "title": "监控目标总数",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "count(up)", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "在线目标数",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "count(up == 1)", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "离线目标数",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "count(up == 0)", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "活跃告警数",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "count(ALERTS{alertstate=\"firing\"})", "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "目标状态",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }
+    },
+    {
+      "type": "table",
+      "title": "监控目标列表",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "up", "refId": "A", "format": "table", "instant": true }]
+    },
+    {
+      "type": "row",
+      "title": "抓取延迟",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 }
+    },
+    {
+      "type": "timeseries",
+      "title": "抓取延迟 (秒)",
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 15 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "scrape_duration_seconds", "legendFormat": "{{job}} - {{instance}}", "refId": "A" }]
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "annotations": { "list": [] },
+  "description": "Redis 缓存监控面板",
+  "editable": true,
+  "schemaVersion": 39,
+  "tags": [ "redis", "cache" ],
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Redis 监控",
+  "uid": "redis-dashboard",
+  "version": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": "Prometheus",
+        "refresh": 1,
+        "query": "label_values(redis_up, instance)",
+        "definition": "label_values(redis_up, instance)",
+        "current": { "text": "All", "value": "$__all" },
+        "includeAll": true,
+        "multi": true,
+        "label": "Instance"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "概览",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "stat",
+      "title": "服务状态",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "redis_up{instance=~\"$instance\"}", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "已连接客户端",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "redis_connected_clients{instance=~\"$instance\"}", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "Key 总数",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "redis_db_keys{instance=~\"$instance\"}", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "内存使用 (MB)",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "redis_memory_used_bytes{instance=~\"$instance\"} / 1024 / 1024", "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "性能",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }
+    },
+    {
+      "type": "timeseries",
+      "title": "每秒命令数 (OPS)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "rate(redis_commands_processed_total{instance=~\"$instance\"}[5m])", "legendFormat": "{{instance}}", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "命中率 (%)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "(rate(redis_keyspace_hits_total{instance=~\"$instance\"}[5m]) / (rate(redis_keyspace_hits_total{instance=~\"$instance\"}[5m]) + rate(redis_keyspace_misses_total{instance=~\"$instance\"}[5m]))) * 100", "legendFormat": "{{instance}}", "refId": "A" }]
+    }
+  ]
+}

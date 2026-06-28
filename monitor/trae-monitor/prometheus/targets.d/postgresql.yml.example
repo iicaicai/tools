@@ -1,0 +1,21 @@
+# ============================================================
+# 示例：PostgreSQL 容器监控 (使用 postgres_exporter)
+#
+# 部署步骤：
+#   1) 为 PostgreSQL 运行 postgres_exporter 容器 (它会抓取 PG 指标
+#   2) 在 postgres 上创建监控用户（可选）
+#      CREATE USER postgres_exporter WITH PASSWORD 'secret';
+#      ALTER USER postgres_exporter WITH SUPERUSER;
+#   3) 运行 postgres_exporter 容器示例：
+#      docker run -d --name postgres_exporter \
+#        --network monitor-net \
+#        -e DATA_SOURCE_NAME="postgresql://postgres_exporter:secret@postgres:5432/postgres?sslmode=disable" \
+#        -p 9187:9187 quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+#   4) 将下面的 targets 填成 exporter 即可
+# ============================================================
+- targets:
+    - postgres_exporter:9187
+  labels:
+    job: postgresql
+    instance: postgres-db
+    dbname: postgres

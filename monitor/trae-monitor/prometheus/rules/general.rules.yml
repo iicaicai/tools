@@ -1,0 +1,107 @@
+# ============================================================
+# 通用告警规则（主机与常见 exporter）
+# ============================================================
+
+groups:
+  # -------- 主机 / Node Exporter --------
+  - name: host.rules
+    rules:
+      - alert: HostDown
+        expr: up{job="node-exporter"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "主机 {{ $labels.instance }} 宕机"
+          description: "{{ $labels.instance }} 的 node-exporter 已超过 2 分钟无法抓取。"
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} CPU 使用率过高"
+          description: "CPU 使用率 > 85% (当前: {{ $value | printf \"%.2f\" }}%)"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} 内存使用率过高"
+          description: "内存使用率 > 90% (当前: {{ $value | printf \"%.2f\" }}%)"
+
+      - alert: HighDiskUsage
+        expr: (1 - node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} 磁盘 {{ $labels.mountpoint }} 使用率过高"
+          description: "磁盘使用率 > 85% (当前: {{ $value | printf \"%.2f\" }}%)"
+
+  # -------- Prometheus 自身 --------
+  - name: prometheus.rules
+    rules:
+      - alert: PrometheusConfigReloadFailed
+        expr: prometheus_config_last_reload_successful == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus 配置重载失败"
+          description: "Prometheus 最后一次配置重载失败，请检查 targets.d/*.yml 格式是否正确。"
+
+  # -------- PostgreSQL --------
+  - name: postgresql.rules
+    rules:
+      - alert: PostgresqlDown
+        expr: up{job="postgresql"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL {{ $labels.instance }} 不可达"
+
+      - alert: PostgresqlHighConnections
+        expr: (pg_stat_database_numbackends / pg_settings_max_connections) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} 数据库连接数 > 80%"
+
+  # -------- MySQL / MariaDB --------
+  - name: mysql.rules
+    rules:
+      - alert: MysqlDown
+        expr: up{job="mysql"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MySQL {{ $labels.instance }} 不可达"
+
+  # -------- InfluxDB --------
+  - name: influxdb.rules
+    rules:
+      - alert: InfluxdbDown
+        expr: up{job="influxdb"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "InfluxDB {{ $labels.instance }} 不可达"
+
+  # -------- Redis --------
+  - name: redis.rules
+    rules:
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis {{ $labels.instance }} 不可达"

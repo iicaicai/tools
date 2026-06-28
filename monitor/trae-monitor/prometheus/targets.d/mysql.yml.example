@@ -1,0 +1,19 @@
+# ============================================================
+# 示例：MySQL / MariaDB 容器监控 (使用 mysqld_exporter)
+#
+# 部署步骤：
+#   1) 在 MySQL 中创建监控用户
+#      CREATE USER 'exporter'@'%' IDENTIFIED BY 'secret';
+#      GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'exporter'@'%';
+#      FLUSH PRIVILEGES;
+#   2) 启动 mysqld_exporter 容器:
+#      docker run -d --name mysqld_exporter \
+#        --network monitor-net \
+#        -e DATA_SOURCE_NAME="exporter:secret@(mysql:3306)/" \
+#        -p 9104:9104 prom/mysqld-exporter:v0.15.1
+# ============================================================
+- targets:
+    - mysqld_exporter:9104
+  labels:
+    job: mysql
+    instance: mysql-db

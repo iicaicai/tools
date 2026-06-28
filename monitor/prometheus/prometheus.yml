@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 【修复】直接使用 Docker 容器名抓取本地宿主机指标，无需配置 IP，开箱即用
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          instance: 'local-server'
+
+  # 【修复】直接使用 Docker 容器名抓取本地所有容器指标，无需配置 IP
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          instance: 'local-docker'
+
+  # --------------------------------------------------------
+  # 下面的保留为动态文件，用于未来你提到的【线下机房云端推拉】或其他额外容器
+  # --------------------------------------------------------
+  - job_name: 'external_nodes'
+    file_sd_configs:
+      - files: ['/etc/prometheus/targets/nodes.json']
+        refresh_interval: 10s
+
+  - job_name: 'external_postgresql'
+    file_sd_configs:
+      - files: ['/etc/prometheus/targets/postgres.json']
+        refresh_interval: 10s

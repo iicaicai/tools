@@ -1,0 +1,19 @@
+# ============================================================
+# 示例：InfluxDB 容器监控 (InfluxDB 2.x 自带 /metrics 端点)
+# 或 InfluxDB 1.x 使用 --http-prometheus-enabled 选项
+#
+# 部署步骤：
+#   - InfluxDB 2.x: 默认暴露 /metrics 端点，端口 8086
+#   - InfluxDB 1.x: 启动时加参数 --http-prometheus-enabled
+#
+# docker run -d --name influxdb \
+#   --network monitor-net \
+#   -p 8086:8086 \
+#   influxdb:2.7-alpine
+# ============================================================
+- targets:
+    - influxdb:8086
+  labels:
+    job: influxdb
+    instance: influxdb-server
+    metrics_path: /metrics
